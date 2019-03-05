@@ -9,16 +9,36 @@ import {
   Image,
   TouchableOpacity
 } from "react-native";
+import { Toast } from "native-base";
+import { connect } from "react-redux";
+import { signUp } from "../../store/actions/authActions";
 
-class Login extends Component {
-  handleSignUp = () => {
+class SignUp extends Component {
+  state = {
+    email: "",
+    password: "",
+    name: ""
+  };
+  handleName = (text) => {
+    this.setState({ name: text })
+  }
+  handleEmail = (text) => {
+    this.setState({ email: text })
+  }
+  handlePassword = (text) => {
+    this.setState({ password: text })
+  }
+  handleSubmit = () => {
+    this.props.signUp(this.state);
     // this.props.navigation.navigate("Loading");
     this.props.navigation.navigate("Reminders");
   };
+
   goToLogin = () => {
     this.props.navigation.goBack();
   };
   render() {
+    const { authError } = this.props;
     return (
       <SafeAreaView style={styles.container}>
         <View>
@@ -30,6 +50,7 @@ class Login extends Component {
             style={styles.input}
             placeholder="Nombre"
             placeholderTextColor="black"
+            onChangeText={this.handleName}
           />
           <TextInput
             style={styles.input}
@@ -39,6 +60,7 @@ class Login extends Component {
             keyboardType="email-address"
             textContentType="emailAddress"
             autoComplete="email"
+            onChangeText={this.handleEmail}
           />
           <TextInput
             style={styles.input}
@@ -48,13 +70,15 @@ class Login extends Component {
             autoCorrect={false}
             autoComplete="password"
             textContentType="password"
+            onChangeText={this.handlePassword}
           />
-          <TouchableOpacity onPress={this.handleSignUp} style={styles.button1}>
+          <TouchableOpacity onPress={this.handleSubmit} style={styles.button1}>
             <Text style={styles.buttonLabel1}>Registrarse</Text>
           </TouchableOpacity>
           <TouchableOpacity onPress={this.goToLogin} style={styles.button2}>
             <Text style={styles.buttonLabel2}>Iniciar sesión</Text>
           </TouchableOpacity>
+          {authError ? Toast.show({ text: authError, buttonText: "OK", type: "danger" }) : null}
         </View>
       </SafeAreaView>
     );
@@ -116,4 +140,20 @@ const styles = StyleSheet.create({
   }
 });
 
-export default Login;
+const mapStateToProps = state => {
+  return {
+    auth: state.firebase.auth,
+    authError: state.auth.authError
+  };
+};
+
+const mapDispatchToProps = dispatch => {
+  return {
+    signUp: creds => dispatch(signUp(creds))
+  };
+};
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(SignUp);

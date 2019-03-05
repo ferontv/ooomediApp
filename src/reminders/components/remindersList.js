@@ -16,6 +16,7 @@ export default class RemindersList extends Component {
           data={this.props.reminder}
           ListEmptyComponent={this.renderEmpty}
           ItemSeparatorComponent={this.itemSeparator}
+          inverted
           renderItem={({ item }) => (
             <SwipeRow
               rightOpenValue={-75}

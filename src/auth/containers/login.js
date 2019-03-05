@@ -9,9 +9,22 @@ import {
   Image,
   TouchableOpacity
 } from "react-native";
+import { connect } from "react-redux";
+import { signIn } from "../../store/actions/authActions";
 
 class Login extends Component {
-  handleLogin = () => {
+  state = {
+    email: "",
+    password: ""
+  };
+  handleEmail = (text) => {
+    this.setState({ email: text })
+  }
+  handlePassword = (text) => {
+    this.setState({ password: text })
+  }
+  handleSubmit = () => {
+    this.props.signIn(this.state);
     // this.props.navigation.navigate("Loading");
     this.props.navigation.navigate("Reminders");
   };
@@ -20,6 +33,7 @@ class Login extends Component {
     this.props.navigation.navigate("SignUp");
   };
   render() {
+    const { authError } = this.props;
     return (
       <SafeAreaView style={styles.container}>
         <View>
@@ -35,6 +49,7 @@ class Login extends Component {
             keyboardType="email-address"
             textContentType="emailAddress"
             autoComplete="email"
+            onChangeText={this.handleEmail}
           />
           <TextInput
             style={styles.input}
@@ -44,13 +59,15 @@ class Login extends Component {
             autoCorrect={false}
             autoComplete="password"
             textContentType="password"
+            onChangeText={this.handlePassword}
           />
-          <TouchableOpacity onPress={this.handleLogin} style={styles.button1}>
+          <TouchableOpacity onPress={this.handleSubmit} style={styles.button1}>
             <Text style={styles.buttonLabel1}>Iniciar Sesión</Text>
           </TouchableOpacity>
           <TouchableOpacity onPress={this.goToSignUp} style={styles.button2}>
             <Text style={styles.buttonLabel2}>Crear cuenta</Text>
           </TouchableOpacity>
+          {authError ? Toast.show({ text: authError, buttonText: "OK", type: "danger" }) : null}
         </View>
       </SafeAreaView>
     );
@@ -112,4 +129,20 @@ const styles = StyleSheet.create({
   }
 });
 
-export default Login;
+const mapStateToProps = state => {
+  return {
+    authError: state.auth.authError,
+    auth: state.firebase.auth
+  };
+};
+
+const mapDispatchToProps = dispatch => {
+  return {
+    signIn: creds => dispatch(signIn(creds))
+  };
+};
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(Login);
